@@ -1,6 +1,9 @@
 import { defineStore } from 'pinia'
+import firebase from 'firebase/compat/app'
+import { serverTimestamp, doc, collection, increment } from 'firebase/firestore'
 import { findById } from '@/helpers/'
-import { useMainStore } from '@/stores/MainStore'
+import { fetchResource, fetchResources, setResource, updateDocumentInDatabase, setValuesInDatabase } from '@/services/firestoreCalls.js'
+import { setResourceInStore, setValuesInStore } from '@/services/storeCalls.js'
 import { useUserStore } from '@/stores/UserStore'
 
 export const usePostStore = defineStore('PostStore', {
@@ -12,18 +15,40 @@ export const usePostStore = defineStore('PostStore', {
 	getters: {},
   actions: {
     async fetchPost(resourceId, parent){
-      await useMainStore().fetchResource('posts', resourceId, parent, usePostStore())
+      await fetchResource('posts', resourceId, parent, usePostStore())
     },
     async fetchPosts(ids, parent){
-      await useMainStore().fetchResources('posts', ids, parent, usePostStore())
+      await fetchResources('posts', ids, parent, usePostStore())
     },
-    createPost(post, thread) {
-			post.publishedAt = Math.floor(Date.now() / 1000)
-			post.id = `gggg${Math.random()}`
-      const userId = useUserStore().authUser.id
-			post.userId = userId
-      
-			useMainStore().setResource('posts', post, thread, usePostStore())
+    async createPost(post, thread) {
+      post.userId = useUserStore().authUser.id
+			post.publishedAt = serverTimestamp()
+      const postId = await setResource('posts', post, thread, usePostStore())
+      const checkForContributors = () => {
+        if(thread.posts){
+          if(thread.posts.length > 1){
+            setResourceInStore('contributors', post.userId, thread, [])
+            return { posts: postId, contributors: post.userId }
+          }
+          return { posts: postId }
+        }
+        return { posts: postId }
+      }
+      const dataToUpdateInThread = checkForContributors()
+      await setValuesInDatabase('users', post.userId, { postsCount: increment(1) })
+      await updateDocumentInDatabase('threads', thread.id, dataToUpdateInThread)
+      return postId
 		},
+    async updatePost(text, id){
+      const post = {
+        text,
+        edited: {
+          at: serverTimestamp(),
+          by: useUserStore().authId,
+          moderated: false
+        }
+      }
+      const updatedPost = await setValuesInDatabase('posts', id, {...post})
+    }
   }
 })

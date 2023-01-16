@@ -25,7 +25,7 @@ const postsInThread = computed(() =>
 	postStore.posts.filter(post => post.threadId === props.id)
 )
 const addPost = (event, thread) => {
-	const post = { ...event.post }
+	const post = { text: event.text, threadId: thread.id }
 	postStore.createPost(post, thread)
 }
 onMounted(async () => {
@@ -81,7 +81,6 @@ onMounted(async () => {
 
     <PostList :posts="postsInThread" />
     <PostEditor
-      :thread-id="thread.id"
       @save-post="addPost($event, thread)"
     />
   </div>
