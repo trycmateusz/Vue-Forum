@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { findById } from '@/helpers/'
-import { useMainStore } from '@/stores/MainStore'
+import { fetchResource, fetchResources } from '@/services/firestoreCalls.js'
 import { usePostStore } from '@/stores/PostStore'
 import { useThreadStore } from '@/stores/ThreadStore'
 
@@ -24,30 +24,30 @@ export const useUserStore = defineStore('UserStore', {
           get posts() {
             return usePostStore().posts.filter(post => post.userId === user.id)
           },
-  
           get postsCount() {
-            return this.posts.length
+            return user.postsCount || 0
           },
-  
           get threads() {
             return useThreadStore().threads.filter(
               thread => thread.userId === user.id
             )
           },
-  
           get threadsCount() {
-            return this.threads.length
+            return user.threads?.length || 0
           },
         } 
       }
     },
   },
   actions: {
+    async fetchAuthUser(){
+      await fetchResource('users', this.authId, {}, useUserStore())
+    },
     async fetchUser(resourceId){
-      await useMainStore().fetchResource('users', resourceId, {}, useUserStore())
+      await fetchResource('users', resourceId, {}, useUserStore())
     },
     async fetchUsers(ids){
-      await useMainStore().fetchResources('users', ids, {}, useUserStore())
+      await fetchResources('users', ids, {}, useUserStore())
     },
     updateUser(requestedUser, editedUser) {
 			const requestedUserIndex = this.users.findIndex(

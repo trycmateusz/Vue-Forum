@@ -1,5 +1,6 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
+import { useAsyncState } from '@vueuse/core'
 import { findById } from '../helpers'
 import AppDate from '@/components/AppDate.vue'
 import PostList from '@/components/PostList.vue'
@@ -17,7 +18,6 @@ const props = defineProps({
 		required: true,
 	},
 })
-const threadLoaded = ref(false)
 const thread = computed(() => {
   return threadStore.getThread(props.id)
 })
@@ -28,18 +28,17 @@ const addPost = (event, thread) => {
 	const post = { text: event.text, threadId: thread.id }
 	postStore.createPost(post, thread)
 }
-onMounted(async () => {
+const { isReady } = useAsyncState(async () => {
   await threadStore.fetchThread(props.id, {})
   await userStore.fetchUser(thread.value.userId, {})
   await userStore.fetchUsers(thread.value.contributors, {})
   await postStore.fetchPosts(thread.value.posts, thread)
-  threadLoaded.value = true
 })
 </script>
 
 <template>
   <div
-    v-if="threadLoaded"
+    v-if="isReady"
     class="col-large push-top"
   >
     <h1>

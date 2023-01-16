@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { findById } from '@/helpers/'
-import { useMainStore } from '@/stores/MainStore'
+import { fetchResource, fetchResources } from '@/services/firestoreCalls.js'
 
 export const useForumStore = defineStore('ForumStore', {
 	state: () => {
@@ -11,10 +11,11 @@ export const useForumStore = defineStore('ForumStore', {
 	getters: {},
   actions: {
     async fetchForum(resourceId, parent){
-      await useMainStore().fetchResource('forums', resourceId, parent, useForumStore())
+      await fetchResource('forums', resourceId, parent, useForumStore())
+      return
     },
     async fetchForums(ids, parent){
-      await useMainStore().fetchResources('forums', ids, parent, useForumStore())
+      await fetchResources('forums', ids, parent, useForumStore())
     },
   }
 })

@@ -4,14 +4,16 @@ export const findById = (resources, id) => {
 }
 
 export const upsert = (resources, resource, parent, parentsResources) => {
+  if(resources !== []){ 
     const index = resources.findIndex(r => r.id === resource.id)
     if(resource.id && index != -1){
       resources[index] = resource
     } else {
       resources.push(resource)
     }
-    
-    appendChildToParent(parent, parentsResources, resource.id)
+  }
+
+  appendChildToParent(parent, parentsResources, resource.id)
 }
 
 export const appendChildToParent = (parent, parentsResources, resourceId) => {

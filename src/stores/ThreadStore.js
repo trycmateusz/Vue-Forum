@@ -1,6 +1,9 @@
+import { ref } from 'vue'
 import { defineStore } from 'pinia'
+import firebase from 'firebase/compat/app'
+import { serverTimestamp } from 'firebase/firestore'
 import { findById } from '@/helpers/'
-import { useMainStore } from '@/stores/MainStore'
+import { fetchResource, fetchResources, setResource, updateDocumentInDatabase, setValuesInDatabase } from '@/services/firestoreCalls.js'
 import { useForumStore } from '@/stores/ForumStore'
 import { usePostStore } from '@/stores/PostStore'
 import { useUserStore } from '@/stores/UserStore'
@@ -35,30 +38,33 @@ export const useThreadStore = defineStore('ThreadStore', {
   },
   actions: {
     async fetchThread(resourceId, parent){
-      await useMainStore().fetchResource('threads', resourceId, parent, useThreadStore())
+      await fetchResource('threads', resourceId, parent, useThreadStore())
     },
     async fetchThreads(ids, parent){
-      await useMainStore().fetchResources('threads', ids, parent, useThreadStore())
+      await fetchResources('threads', ids, parent, useThreadStore())
     },
-    createThread(text, title, forumId) {
-			const publishedAt = Math.floor(Date.now() / 1000)
-			const id = `gggg${Math.random()}`
+    async createThread(text, title, forumId) {
+			const publishedAt = serverTimestamp()
 			const userId = useUserStore().authUser.id || ''
-			const thread = { forumId, title, publishedAt, userId, id }
-      const forum = findById(useForumStore().forums, thread.forumId)
-			useMainStore().setResource('threads', thread, forum, useThreadStore())
+			const thread = ref({ text, forumId, title, publishedAt, userId })
+      const forum = findById(useForumStore().forums, thread.value.forumId)
+			const id = await setResource('threads', thread.value, forum, useThreadStore())
+      await updateDocumentInDatabase('forums', forumId, {threads: id})
 			const post = {
 				text,
-				threadId: thread.id,
+				threadId: id,
 			}
-			usePostStore().createPost(post, thread)
-      return findById(this.threads, id)
+      await this.fetchThread(id, forum)
+      thread.value = findById(this.threads, id)
+			const postId = await usePostStore().createPost(post, thread.value)
+      setValuesInDatabase('threads', id, { firstPostId: postId })
+      return thread.value
 		},
-    updateThread(text, title, threadId){
+    async updateThread(text, title, threadId){
       const thread = findById(this.threads, threadId)
       const post = findById(usePostStore().posts, thread.posts[0])
-      thread.title = title
-      post.text = text
+      await setValuesInDatabase('threads', thread.id, { title })
+      await setValuesInDatabase('posts', post.id, { text })
       return thread
     },
   }
