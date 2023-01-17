@@ -1,11 +1,8 @@
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
 import PostList from '@/components/PostList.vue'
 import UserProfileCard from '@/components/UserProfileCard.vue'
 import UserProfileEditor from '@/components/UserProfileEditor.vue'
 import { useUserStore } from '@/stores/UserStore'
-import { usePostStore } from '@/stores/PostStore'
-import { useThreadStore } from '@/stores/ThreadStore'
 const userStore = useUserStore()
 
 const props = defineProps({

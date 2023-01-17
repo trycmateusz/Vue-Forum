@@ -3,8 +3,9 @@ export const findById = (resources, id) => {
   return resources.find(r => r.id === id)
 }
 
-export const upsert = (resources, resource, parent, parentsResources) => {
-  if(resources !== []){ 
+export const upsert = (resources, resource, parent = {}, parentsResources = '') => {
+  console.log(resources, resource)
+  if(resources !== []){
     const index = resources.findIndex(r => r.id === resource.id)
     if(resource.id && index != -1){
       resources[index] = resource

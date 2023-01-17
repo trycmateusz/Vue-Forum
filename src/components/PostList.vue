@@ -1,9 +1,8 @@
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref } from 'vue'
 import PostEditor from '@/components/PostEditor.vue'
 import { usePostStore } from '../stores/PostStore'
 import { useUserStore } from '../stores/UserStore'
-const postStore = usePostStore()
 const userStore = useUserStore()
 
 const props = defineProps({
@@ -28,7 +27,7 @@ const handleUpdate = (event) => {
 <template>
   <div class="post-list">
     <div
-      v-for="post in posts"
+      v-for="post in props.posts"
       :key="post.id"
       class="post"
     >
@@ -80,7 +79,7 @@ const handleUpdate = (event) => {
       </div>
       <div class="post-date text-faded">
         <div
-          v-if="post.edited?.at"
+          v-if="post.edited"
           class="edition-info"
         >
           edited

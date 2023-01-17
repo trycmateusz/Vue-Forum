@@ -3,6 +3,7 @@ import { findById } from '@/helpers/'
 import { fetchResource, fetchResources } from '@/services/firestoreCalls.js'
 import { usePostStore } from '@/stores/PostStore'
 import { useThreadStore } from '@/stores/ThreadStore'
+import { upsert } from '../helpers'
 
 export const useUserStore = defineStore('UserStore', {
 	state: () => {
@@ -41,13 +42,18 @@ export const useUserStore = defineStore('UserStore', {
   },
   actions: {
     async fetchAuthUser(){
-      await fetchResource('users', this.authId, {}, useUserStore())
+      const user = await fetchResource('users', this.authId)
+      upsert(this.users, user, {}, '')
     },
     async fetchUser(resourceId){
-      await fetchResource('users', resourceId, {}, useUserStore())
+      const user = await fetchResource('users', resourceId)
+      upsert(this.users, user, {}, '')
     },
     async fetchUsers(ids){
-      await fetchResources('users', ids, {}, useUserStore())
+      const users = await fetchResources('users', ids)
+      users.forEach(user => {
+        upsert(this.users, user)
+      })
     },
     updateUser(requestedUser, editedUser) {
 			const requestedUserIndex = this.users.findIndex(

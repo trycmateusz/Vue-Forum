@@ -1,5 +1,4 @@
 <script setup>
-import { ref, reactive } from 'vue'
 import ForumList from '@/components/ForumList.vue'
 
 const props = defineProps({

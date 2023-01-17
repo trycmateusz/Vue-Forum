@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, defineEmits } from 'vue'
+import { computed } from 'vue'
 import { findById } from '@/helpers/'
 import { useAsyncState } from '@vueuse/core'
 import ForumList from '@/components/ForumList.vue'

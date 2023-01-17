@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { findById } from '@/helpers/'
+import { upsert } from '@/helpers'
 import { fetchResource, fetchResources } from '@/services/firestoreCalls.js'
 
 export const useForumStore = defineStore('ForumStore', {
@@ -11,11 +11,14 @@ export const useForumStore = defineStore('ForumStore', {
 	getters: {},
   actions: {
     async fetchForum(resourceId, parent){
-      await fetchResource('forums', resourceId, parent, useForumStore())
-      return
+      const forum = await fetchResource('forums', resourceId)
+      upsert(this.forums, forum, parent, 'forums')
     },
     async fetchForums(ids, parent){
-      await fetchResources('forums', ids, parent, useForumStore())
+      const forums = await fetchResources('forums', ids)
+      await forums.forEach(forum => {
+        upsert(this.forums, forum, parent, 'forums')
+      })
     },
   }
 })

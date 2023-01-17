@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { useAsyncState } from '@vueuse/core'
 import { findById } from '@/helpers/'
 import ThreadList from '@/components/ThreadList.vue'
@@ -23,9 +23,9 @@ const forumThreads = computed(() => {
   if(forum.value.threads) return forum.value.threads.map(threadId => threadStore.getThread(threadId))
   return []
 })
-const { state, isReady, isLoading } = useAsyncState(async () => {
+const { isReady } = useAsyncState(async () => {
   await forumStore.fetchForum(props.id, {})
-  await threadStore.fetchThreads(forum.value.threads, {})
+  await threadStore.fetchThreads(forum.value.threads, forum.value)
   await userStore.fetchUsers(forumThreads.value.map(thread => thread.userId))
 })
 </script>

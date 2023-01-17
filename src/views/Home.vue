@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { useAsyncState } from '@vueuse/core'
 import CategoryList from '@/components/CategoryList.vue'
 import { useCategoryStore } from '@/stores/CategoryStore'

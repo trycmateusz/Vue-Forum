@@ -1,7 +1,6 @@
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { computed } from 'vue'
 import { useAsyncState } from '@vueuse/core'
-import { findById } from '../helpers'
 import AppDate from '@/components/AppDate.vue'
 import PostList from '@/components/PostList.vue'
 import PostEditor from '@/components/PostEditor.vue'

@@ -1,10 +1,9 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import TheNavbar from '@/components/TheNavbar.vue'
 import { useUserStore } from '@/stores/UserStore'
 const userStore = useUserStore()
 
-const showPage = ref(false)
 onMounted(() => {
   userStore.fetchAuthUser()
 })

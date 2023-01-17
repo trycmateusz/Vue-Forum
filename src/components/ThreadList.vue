@@ -1,9 +1,6 @@
 <script setup>
-import { ref, reactive } from 'vue'
 import { findById } from '@/helpers/'
-import { usePostStore } from '@/stores/PostStore'
 import { useUserStore } from '@/stores/UserStore'
-const postStore = usePostStore()
 const userStore = useUserStore()
 
 const props = defineProps({
@@ -12,7 +9,6 @@ const props = defineProps({
 		required: true,
 	},
 })
-const findPost = postId => findById(postStore.posts, postId)
 const findUser = userId => findById(userStore.users, userId) || {}
 </script>
 

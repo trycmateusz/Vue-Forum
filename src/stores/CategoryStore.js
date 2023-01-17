@@ -1,9 +1,8 @@
 import { defineStore } from 'pinia'
+import { upsert } from '@/helpers'
 import firebase from 'firebase/compat/app'
 import { collection, getDocs } from 'firebase/firestore'
-import { findById } from '@/helpers/'
 import { fetchResource, fetchResources } from '@/services/firestoreCalls.js'
-import { setResourceInStore } from '@/services/storeCalls.js'
 
 export const useCategoryStore = defineStore('CategoryStore', {
 	state: () => {
@@ -14,16 +13,20 @@ export const useCategoryStore = defineStore('CategoryStore', {
 	getters: {},
   actions: {
     async fetchCategory(resourceId){
-      await fetchResource('categories', resourceId, {}, useCategoryStore())
+      const category = await fetchResource('categories', resourceId)
+      upsert(this.categories, category)
     },
     async fetchCategories(ids){
-      await fetchResources('categories', ids, {}, useCategoryStore())
+      const categories = await fetchResources('categories', ids)
+      categories.forEach(category => {
+        upsert(this.categories, category)
+      })
     },
     async fetchAllCategories(){
       const querySnapshot = await getDocs(collection(firebase.firestore(), 'categories'))
       querySnapshot.forEach(doc => {
         const category = {...doc.data(), id: doc.id}
-        setResourceInStore('categories', category, {}, useCategoryStore())
+        upsert(this.categories, category)
       })
     },
   }
