@@ -12,15 +12,14 @@ export const useCategoryStore = defineStore('CategoryStore', {
 	},
 	getters: {},
   actions: {
+    clearCategories(){
+      this.categories = []
+    },
     async fetchCategory(resourceId){
-      const category = await fetchResource('categories', resourceId)
-      upsert(this.categories, category)
+      await fetchResource('categories', resourceId, this)
     },
     async fetchCategories(ids){
-      const categories = await fetchResources('categories', ids)
-      categories.forEach(category => {
-        upsert(this.categories, category)
-      })
+      await fetchResources('categories', ids, this)
     },
     async fetchAllCategories(){
       const querySnapshot = await getDocs(collection(firebase.firestore(), 'categories'))

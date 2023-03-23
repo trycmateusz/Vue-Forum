@@ -42,11 +42,11 @@ const handleUpdate = (event) => {
           {{ findUser(post.userId).name }}
         </a>
         <a href="#">
-          <img
+          <AppAvatarImage
             class="avatar-large"
             :src="findUser(post.userId).avatar"
             alt="User avatar"
-          >
+          />
         </a>
         <p class="desktop-only text-small">
           {{ findUser(post.userId).postsCount }} posts

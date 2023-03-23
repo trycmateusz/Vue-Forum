@@ -4,7 +4,6 @@ export const findById = (resources, id) => {
 }
 
 export const upsert = (resources, resource, parent = {}, parentsResources = '') => {
-  console.log(resources, resource)
   if(resources !== []){
     const index = resources.findIndex(r => r.id === resource.id)
     if(resource.id && index != -1){
@@ -25,4 +24,7 @@ export const appendChildToParent = (parent, parentsResources, resourceId) => {
   parent[parentsResources] = parent[parentsResources] || []
   parent[parentsResources].includes(resourceId) ? '' : parent[parentsResources].push(resourceId)
 }
-
+export const arrayRandom = (array) => {
+  const randomIndex = Math.floor(Math.random() * array.length)
+  return array[randomIndex]
+}

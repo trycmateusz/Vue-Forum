@@ -1,5 +1,9 @@
 <script setup>
-import { ref } from 'vue'
+import { onMounted } from 'vue'
+const emit = defineEmits(['ready'])
+onMounted(() => {
+  emit('ready')
+})
 </script>
 
 <template>

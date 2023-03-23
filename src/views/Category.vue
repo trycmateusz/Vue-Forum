@@ -14,19 +14,24 @@ const props = defineProps({
 		required: true,
 	},
 })
+const emit = defineEmits(['ready'])
 const category = computed(() =>{
   return findById(categoryStore.categories, props.id)
 })
 const { isReady } = useAsyncState(async () => {
   await categoryStore.fetchCategory(props.id)
   await forumStore.fetchForums(category.value.forums, category.value)
-}, undefined)
+  emit('ready')
+})
 </script>
 
 <template>
-  <div class="col-full">
+  <div
+    v-if="isReady"
+    class="col-full"
+  >
     <div
-      v-if="isReady"
+   
       class="col-full push-top"
     >
       <h1>
@@ -34,7 +39,6 @@ const { isReady } = useAsyncState(async () => {
       </h1>
     </div>
     <div
-      v-if="isReady"
       class="col-full"
     >
       <div class="forum-list">

@@ -13,26 +13,26 @@ const props = defineProps({
 <template>
   <div class="profile-card">
     <p class="text-center">
-      <img
-        :src="user.avatar"
-        :alt="`${user.avatar} profile picture`"
+      <AppAvatarImage
+        :src="props.user.avatar"
+        :alt="`${props.user.avatar} profile picture`"
         class="avatar-xlarge"
-      >
+      />
     </p>
 
     <h1 class="title">
-      {{ user.username }}
+      {{ props.user.username }}
     </h1>
 
     <p class="text-lead">
-      {{ user.name }}
+      {{ props.user.name }}
     </p>
 
     <p class="text-justify">
-      {{ user.bio || 'No bio specified' }}
+      {{ props.user.bio || 'No bio specified' }}
     </p>
 
-    <span class="online">{{ user.username }} is online</span>
+    <span class="online">{{ props.user.username }} is online</span>
 
     <div class="stats">
       <span>{{ userStore.authUser.postsCount }} posts</span>
@@ -42,24 +42,29 @@ const props = defineProps({
     <hr>
 
     <p
-      v-if="user.website"
+      v-if="props.user.website"
       class="text-large text-center"
     >
-      <i class="fa fa-globe" /> <a href="#">{{ user.website }}</a>
+      <i class="fa fa-globe" /> <a
+        :href="'//' + props.user.website"
+        target="_blank"
+      >{{ props.user.website }}</a>
     </p>
-    <p class="text-xsmall text-faded text-center">
-      Member since june 2003, last visited 4 hours ago
+    
+    <p
+      v-else
+      class="text-large text-center"
+    >
+      No bio or website specified.
     </p>
-
-    <div class="text-center">
-      <hr>
-      <router-link
-        :to="{name: 'ProfileEdit'}"
-        class="btn-green btn-small"
-      >
-        Edit Profile
-      </router-link>
-    </div>
+  </div>
+  <div class="text-center">
+    <router-link
+      :to="{name: 'ProfileEdit'}"
+      class="btn-green btn-small"
+    >
+      Edit Profile
+    </router-link>
   </div>
 </template>
 

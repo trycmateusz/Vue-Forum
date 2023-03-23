@@ -1,8 +1,7 @@
 import { defineStore } from 'pinia'
-import { upsert } from '@/helpers'
-import { serverTimestamp, increment } from 'firebase/firestore'
-import { fetchResource, fetchResources, setResource, updateDocumentInDatabase, setValuesInDatabase } from '@/services/firestoreCalls.js'
-import { useThreadStore } from '@/stores/ThreadStore'
+import firebase from 'firebase/compat/app'
+import { serverTimestamp, increment, doc, writeBatch, updateDoc, arrayUnion } from 'firebase/firestore'
+import { fetchResource, fetchResources, setResource, fetchOnConditions } from '@/services/firestoreCalls.js'
 import { useUserStore } from '@/stores/UserStore'
 
 export const usePostStore = defineStore('PostStore', {
@@ -13,35 +12,44 @@ export const usePostStore = defineStore('PostStore', {
 	},
 	getters: {},
   actions: {
-    async fetchPost(resourceId, parent){
-      const post = await fetchResource('posts', resourceId)
-      upsert(this.posts, post, parent, 'posts')
+    clearPosts(){
+      this.posts = []
     },
-    async fetchPosts(ids, parent){
-      const posts = await fetchResources('posts', ids)
-      posts.forEach(post => {
-        upsert(this.posts, post, parent, 'posts')
+    async fetchPost(resourceId, handleOnSnapshot = null){
+      await fetchResource('posts', resourceId, this, null, handleOnSnapshot)
+    },
+    async fetchPosts(ids, handleOnSnapshot = null){
+      await fetchResources('posts', ids, this, handleOnSnapshot)
+    },
+    async fetchAuthUsersPosts(startAfter){
+      await fetchOnConditions('posts', this, {
+        where: ['userId', '==', useUserStore().authId],
+        orderBy: ['publishedAt', 'desc'],
+        limit: 10,
+        startAfter
       })
     },
     async createPost(post, thread) {
       post.userId = useUserStore().authUser.id
 			post.publishedAt = serverTimestamp()
-      const newPost = await setResource('posts', post, thread, usePostStore())
-      this.fetchPost(newPost.id,)
+      const newPost = await setResource('posts', post, this)
       const checkForContributors = () => {
         if(thread.posts){
           if(thread.posts.length > 0 && thread.contributors.indexOf(newPost.userId) == -1){
-            return { contributors: newPost.userId }
+            return { contributors: arrayUnion(newPost.userId) }
           }
         }
         return {}
       }
-      const dataToUpdateInThread = checkForContributors()
-      dataToUpdateInThread.posts = newPost.id
-      await setValuesInDatabase('threads', thread.id, { lastPostId: newPost.id })
-      await setValuesInDatabase('users', newPost.userId, { postsCount: increment(1) })
-      await updateDocumentInDatabase('threads', thread.id, dataToUpdateInThread)
-      useThreadStore().fetchThread(thread.id)
+      const toUpdateThread = checkForContributors()
+      toUpdateThread.posts = arrayUnion(newPost.id)
+      toUpdateThread.lastPostId = newPost.id
+      const threadRef = doc(firebase.firestore(), 'threads', thread.id)
+      const userRef = doc(firebase.firestore(), 'users', newPost.userId)
+      const batch = writeBatch(firebase.firestore())
+        batch.update(threadRef, toUpdateThread)
+        batch.update(userRef, { postsCount: increment(1) })
+      await batch.commit()
       return newPost.id
 		},
     async updatePost(text, id){
@@ -53,8 +61,8 @@ export const usePostStore = defineStore('PostStore', {
           moderated: false
         }
       }
-      await setValuesInDatabase('posts', id, {...post})
-      await this.fetchPost(id)
+      const updateRefPost = doc(firebase.firestore(), 'posts', id)
+      await updateDoc(updateRefPost, {...post})
     }
   }
 })

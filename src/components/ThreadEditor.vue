@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, computed } from 'vue'
+import { reactive, computed, watch } from 'vue'
 
 const props = defineProps({
   text: {
@@ -11,46 +11,48 @@ const props = defineProps({
     default: null
   }
 })
-const emit = defineEmits(['save', 'cancel'])
+const emit = defineEmits(['save', 'cancel', 'dirty', 'clean'])
 const existing = computed(() => {
   return !!props.title
 })
 const save = (form) => {
+  emit('clean')
   emit('save', { ...form })
 }
 const cancel = () => emit('cancel')
 const form = reactive({ title: props.title, text: props.text })
+watch(form, () => {
+  if(form.title != props.title || form.text != props.text) {
+    emit('dirty')
+  }
+  else {
+    emit('clean')
+  }
+})
 </script>
 
 <template>
-  <form @submit.prevent="save(form)">
-    <div class="form-group" />
-    <label for="thread_title">Title:</label>
-    <input
-      id="thread_title"
+  <VeeForm @submit="save(form)">
+    <AppFormField
       v-model="form.title"
-      type="text"
-      class="form-input"
+      label="Title"
       name="title"
-    >
-   
-
-    <div class="form-group">
-      <label for="thread_content">Content:</label>
-      <textarea
-        id="thread_content"
-        v-model="form.text"
-        class="form-input"
-        name="content"
-        rows="8"
-        cols="140"
-      />
-    </div>
+      rules="required"
+    />
+    <AppFormField
+      v-model="form.text"
+      as="textarea"
+      label="Content"
+      name="text"
+      rules="required"
+      rows="8" 
+      cols="140"
+    />
 
     <div class="btn-group">
       <button
         class="btn btn-ghost"
-        @click="cancel"
+        @click.prevent="cancel"
       >
         Cancel
       </button>
@@ -62,7 +64,7 @@ const form = reactive({ title: props.title, text: props.text })
         {{ existing ? 'Update' : 'Publish' }}
       </button>
     </div>
-  </form>
+  </VeeForm>
 </template>
 
 <style scoped lang="">

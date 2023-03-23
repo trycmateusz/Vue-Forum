@@ -1,9 +1,11 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { useAsyncState } from '@vueuse/core'
+import difference from 'lodash/difference'
 import AppDate from '@/components/AppDate.vue'
 import PostList from '@/components/PostList.vue'
 import PostEditor from '@/components/PostEditor.vue'
+import { useNotifications } from '@/composables/useNotifications.js'
 import { useThreadStore } from '@/stores/ThreadStore'
 import { usePostStore } from '@/stores/PostStore'
 import { useUserStore } from '@/stores/UserStore'
@@ -17,6 +19,8 @@ const props = defineProps({
 		required: true,
 	},
 })
+const emit = defineEmits(['ready'])
+const { addNotification } = useNotifications()
 const thread = computed(() => {
   return threadStore.getThread(props.id)
 })
@@ -27,11 +31,29 @@ const addPost = (event, thread) => {
 	const post = { text: event.text, threadId: thread.id }
 	postStore.createPost(post, thread)
 }
+watch(thread, async () => {
+  if(!isReady.value) return
+  await postStore.fetchPost(thread.value.lastPostId, (isLocal, previousItem) => {
+    if(isLocal || (previousItem?.edited && !previousItem?.edited?.at)) return
+    addNotification('Post recently updated', 5000)
+  })
+})
 const { isReady } = useAsyncState(async () => {
-  await threadStore.fetchThread(props.id, {})
-  await userStore.fetchUser(thread.value.userId, {})
+  await threadStore.fetchThread(props.id, (isLocal, previousItem, item) => {
+    if(!isReady.value || isLocal) return
+    const newPosts = difference(item.posts, previousItem.posts)
+    const hasNewPosts = newPosts.length > 0
+    if(!hasNewPosts){
+      addNotification('Thread recently updated', 5000)
+    }
+  })
+  await postStore.fetchPosts(thread.value.posts, (isLocal, previousItem) => {
+    if(!isReady.value || isLocal || (previousItem?.edited && !previousItem?.edited?.at)) return
+    addNotification('Post recently updated', 5000)
+  })
   await userStore.fetchUsers(thread.value.contributors, {})
-  await postStore.fetchPosts(thread.value.posts, thread)
+  await userStore.fetchUser(thread.value.userId, {})
+  emit('ready')
 })
 </script>
 
@@ -43,6 +65,7 @@ const { isReady } = useAsyncState(async () => {
     <h1>
       {{ thread.title }}
       <router-link
+        v-if="thread.userId === userStore.authUser?.id"
         v-slot="{navigate}"
         :to="{name: 'ThreadEdit', id: props.id}"
         custom=""
@@ -79,7 +102,19 @@ const { isReady } = useAsyncState(async () => {
 
     <PostList :posts="postsInThread" />
     <PostEditor
+      v-if="userStore.authUser"
       @save-post="addPost($event, thread)"
     />
+    <div
+      v-else
+      class="text-center"
+      style="margin-bottom: 50px;"
+    >
+      <router-link :to="{name: 'SignIn', query: {redirectTo: $route.path}}">
+        Sign In
+      </router-link> or <router-link :to="{name: 'Register', query: {redirectTo: $route.path}}">
+        Register
+      </router-link> to reply.
+    </div>
   </div>
 </template>

@@ -1,18 +1,35 @@
 <script setup>
-import { onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import TheNavbar from '@/components/TheNavbar.vue'
 import { useUserStore } from '@/stores/UserStore'
 const userStore = useUserStore()
 
-onMounted(() => {
-  userStore.fetchAuthUser()
+const router = useRouter()
+const route = useRoute()
+const isReady = ref(false)
+const showPage = () => {
+  isReady.value = true
+}
+
+onMounted(async () => {
+  await userStore.fetchAuthUser()
+  router.beforeEach(() => {
+    isReady.value = false
+  })
 })
 </script>
 
 <template>
   <TheNavbar />
   <div class="container">
-    <RouterView />
+    <RouterView
+      v-show="isReady"
+      :key="`${route.path}${JSON.stringify(route.query)}`"
+      @ready="showPage"
+    />
+    <AppSpinner v-show="!isReady" />
+    <AppNotifications />
   </div>
 </template>
 

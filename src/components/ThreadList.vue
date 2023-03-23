@@ -14,55 +14,65 @@ const findUser = userId => findById(userStore.users, userId) || {}
 
 <template>
   <div
-    v-if="props.threads.length > 0"
     class="col-full"
   >
     <div class="thread-list">
       <h2 class="list-title">
         Threads
       </h2>
-
-      <div
-        v-for="thread in props.threads"
-        :key="thread.id"
-        class="thread"
-      >
-        <div>
-          <p>
-            <router-link
-              :to="{ name: 'ThreadShow', params: { id: thread.id } }"
-            >
-              {{ thread.title }}
-            </router-link>
-          </p>
-          <p class="text-faded text-xsmall">
-            By <a href="#">{{ findUser(thread.userId).name }}</a>, <AppDate :timestamp="thread.publishedAt" />.
-          </p>
-        </div>
-
-        <div class="activity">
-          <p
-            class="replies-count"
+      <div v-if="props.threads.length">
+        <div
+          v-for="(thread, index) in props.threads"
+          :key="index"
+        >
+          <div
+            v-if="thread != null"
+            class="thread"
           >
-            {{ thread.posts.length }} replies
-          </p>
+            <div>
+              <p>
+                <router-link
+                  :to="{ name: 'ThreadShow', params: { id: thread.id } }"
+                >
+                  {{ thread.title }}
+                </router-link>
+              </p>
+              <p class="text-faded text-xsmall">
+                By <a href="#">{{ findUser(thread.userId).name }}</a>, <AppDate :timestamp="thread.publishedAt" />.
+              </p>
+            </div>
 
-          <img
-            class="avatar-medium"
-            :src="findUser(thread.userId).avatar"
-            alt=""
-          >
+            <div class="activity">
+              <p
+                class="replies-count"
+              >
+                {{ thread.posts.length }} replies
+              </p>
 
-          <div>
-            <p class="text-xsmall">
-              <a href="#">{{ findUser(thread.userId).name }}</a>
-            </p>
-            <p class="text-xsmall text-faded">
-              <AppDate :timestamp="thread.publishedAt" />
-            </p>
+              <AppAvatarImage
+                class="avatar-medium"
+                :src="findUser(thread.userId).avatar"
+                alt=""
+              />
+
+              <div>
+                <p class="text-xsmall">
+                  <a href="#">{{ findUser(thread.userId).name }}</a>
+                </p>
+                <p class="text-xsmall text-faded">
+                  <AppDate :timestamp="thread.publishedAt" />
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
+    </div>
+    <div
+      v-if="!threads.length"
+      style="padding: 10px; text-align: center"
+    >
+      <em>No threads avaiable!</em>
     </div>
   </div>
 </template>

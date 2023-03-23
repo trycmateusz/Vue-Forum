@@ -7,15 +7,16 @@ import { useForumStore } from '@/stores/ForumStore'
 const categoryStore = useCategoryStore()
 const forumStore = useForumStore()
 
+const emit = defineEmits(['ready'])
 const categories = computed(() => {
   return categoryStore.categories
 })
-
 const { isReady } = useAsyncState(async () => {
   await categoryStore.fetchAllCategories()
   const forumIds = categories.value.map(category => category.forums).flat()
   await forumStore.fetchForums(forumIds, {})
-}, undefined)
+  emit('ready')
+})
 
 </script>
 
