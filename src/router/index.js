@@ -1,15 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { findById } from '@/helpers'
-import Home from '@/views/Home.vue'
-import Category from '@/views/Category.vue'
-import Forum from '@/views/Forum.vue'
-import ThreadShow from '@/views/ThreadShow.vue'
-import ThreadCreate from '@/views/ThreadCreate.vue'
-import ThreadEdit from '@/views/ThreadEdit.vue'
-import Profile from '@/views/Profile.vue'
-import Register from '@/views/Register.vue'
-import SignIn from '@/views/SignIn.vue'
-import NotFound from '@/views/NotFound.vue'
 import { useAuthStore } from '@/stores/AuthStore.js'
 import { useCategoryStore } from '@/stores/CategoryStore.js'
 import { useForumStore } from '@/stores/ForumStore.js'
@@ -18,11 +8,15 @@ import { usePostStore } from '@/stores/PostStore.js'
 import { useUserStore } from '../stores/UserStore'
 
 const routes = [
-	{ path: '/', name: 'Home', component: Home },
+	{ 
+    path: '/', 
+    name: 'Home', 
+    component: () => import(/*webpackChunkName: "Home"*/'@/views/Home.vue') 
+  },
 	{
 		path: '/thread/:id',
 		name: 'ThreadShow',
-		component: ThreadShow,
+		component: () => import(/*webpackChunkName: "ThreadShow"*/'@/views/ThreadShow.vue'),
 		props: true,
 		async beforeEnter(to) {
       const authStore = useAuthStore()
@@ -45,7 +39,7 @@ const routes = [
   {
     path: '/forum/:forumId/thread/create',
     name: 'ThreadCreate',
-    component: ThreadCreate,
+    component: () => import(/*webpackChunkName: "ThreadCreate"*/'@/views/ThreadCreate.vue'),
     props: true,
     meta: {
       requiresAuth: true
@@ -54,7 +48,7 @@ const routes = [
   {
     path: '/thread/:id/edit',
     name: 'ThreadEdit',
-    component: ThreadEdit,
+    component: () => import(/*webpackChunkName: "ThreadEdit"*/'@/views/ThreadEdit.vue'),
     props: true,
     meta: {
       requiresAuth: true
@@ -63,19 +57,19 @@ const routes = [
 	{
 		path: '/forum/:id',
 		name: 'Forum',
-		component: Forum,
+		component: () => import(/*webpackChunkName: "Forum"*/'@/views/Forum.vue'),
 		props: true,
 	},
 	{
 		path: '/category/:id',
 		name: 'Category',
-		component: Category,
+		component: () => import(/*webpackChunkName: "Category"*/'@/views/Category.vue'),
 		props: true,
 	},
 	{
 		path: '/me',
 		name: 'Profile',
-		component: Profile,
+		component: () => import(/*webpackChunkName: "Profile"*/'@/views/Profile.vue'),
 		meta: {
 			toTop: true,
 			smoothScroll: true,
@@ -85,7 +79,7 @@ const routes = [
 	{
 		path: '/me/edit',
 		name: 'ProfileEdit',
-		component: Profile,
+		component: () => import(/*webpackChunkName: "ProfileEdit"*/'@/views/Profile.vue'),
 		props: {
 			edit: true,
       meta: {
@@ -96,7 +90,7 @@ const routes = [
   {
     path: '/register',
     name: 'Register',
-    component: Register,
+    component: () => import(/*webpackChunkName: "Register"*/'@/views/Register.vue'),
     meta: {
       requiresGuest: true
     }
@@ -104,7 +98,7 @@ const routes = [
   {
     path: '/signin',
     name: 'SignIn',
-    component: SignIn,
+    component: () => import(/*webpackChunkName: "SignIn"*/'@/views/SignIn.vue'),
     meta: {
       requiresGuest: true
     }
@@ -117,7 +111,11 @@ const routes = [
       return { name: 'Home' }
     }
   },
-	{ path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
+	{ 
+    path: '/:pathMatch(.*)*', 
+    name: 'NotFound', 
+    component: () => import(/*webpackChunkName: "NotFound"*/'@/views/NotFound.vue') 
+  },
 ]
 
 const router = createRouter({

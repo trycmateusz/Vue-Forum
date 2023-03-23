@@ -21,6 +21,7 @@
 		"eslint": "^8.35.0",
 		"firebase": "^9.17.2",
 		"pinia": "^2.0.28",
+		"rollup-plugin-bundle-analyzer": "^1.6.6",
 		"vue": "^3.2.41",
 		"vue-final-modal": "^3.4.11",
 		"vue-router": "^4.1.6"

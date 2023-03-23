@@ -1,5 +1,6 @@
 import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import bundleAnalyzer from 'rollup-plugin-bundle-analyzer'
 import path from 'path'
 
 const env = loadEnv(
@@ -27,5 +28,8 @@ export default defineConfig({
 		},
 	},
   define: processEnvValues,
-	plugins: [vue()],
+	plugins: [
+    vue(),
+    bundleAnalyzer()
+  ],
 })
