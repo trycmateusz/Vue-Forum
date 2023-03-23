@@ -53,6 +53,17 @@ const { isReady } = useAsyncState(async () => {
     v-if="isReady"
     class="col-full"
   >
+    <AppHead>
+      <title>{{ forum?.name }}</title>
+      <meta
+        property="og:title"
+        :content="forum?.name"
+      >
+      <meta
+        property="twitter:title"
+        :content="forum?.name"
+      >
+    </AppHead>
     <div
       class="col-full push-top"
     >

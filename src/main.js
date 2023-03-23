@@ -1,4 +1,5 @@
 import { createApp } from 'vue'
+import { createHead } from '@unhead/vue'
 import { createPinia } from 'pinia'
 import router from '@/router/index'
 import '../style.css'
@@ -8,6 +9,7 @@ import AppSpinner from './components/AppSpinner.vue'
 import AppNotifications from '@/components/AppNotifications.vue'
 import AppAvatarImage from '@/components/AppAvatarImage.vue'
 import AppFormField from '@/components/AppFormField.vue'
+import AppHead from '@/components/AppHead.vue'
 import firebase from 'firebase/compat/app'
 import firebaseConfig from '@/config/firebase'
 import 'firebase/compat/firestore'
@@ -17,12 +19,15 @@ import clickOutsideDirective from './plugins/clickOutsideDirective'
 import pageScrollDirective from './plugins/pageScrollDirective'
 import vue3Pagination from './plugins/vue3Pagination'
 
+const head = createHead()
+
 const pinia = createPinia()
 const forumApp = createApp(App)
 
 firebase.initializeApp(firebaseConfig)
 
 forumApp
+.use(head)
 .use(pinia)
 .use(router)
 .use(FontAwesome)
@@ -35,4 +40,5 @@ forumApp
 .component('AppNotifications', AppNotifications)
 .component('AppAvatarImage', AppAvatarImage)
 .component('AppFormField', AppFormField)
+.component('AppHead', AppHead)
 .mount('#app')
