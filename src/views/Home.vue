@@ -25,7 +25,7 @@ const { isReady } = useAsyncState(async () => {
     v-if="isReady"
     class="col-full"
   >
-    <h1>Welcome to the Forum</h1>
+    <h1>Welcome to the Vue.js 3 Master Class Forum</h1>
     <CategoryList
       v-if="categories"
       :categories="categories"
