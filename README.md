@@ -1,7 +1,9 @@
-# Vue 3 + Vite
+# Vueschool Vue Forum
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+Project from Vueschool's Masterclass. My part was redoing all the component and store logic.<br>
+The course was using Vue 3 with Options API and VueX, but I managed to convert all the code to Pinia and Composition API.<br>
+This was the biggest turning point in my Vue journey.
 
-## Recommended IDE Setup
-
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar)
+## Techstack
+- Vue 3
+- Pinia
