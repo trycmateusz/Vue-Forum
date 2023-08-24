@@ -7,3 +7,7 @@ This was the biggest turning point in my Vue journey.
 ## Techstack
 - Vue 3
 - Pinia
+
+### Important!
+I do not claim any rights to the design and mockup of the application.<br>
+These were made by vueschool.io team. Please, check their work!
